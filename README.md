@@ -20,7 +20,7 @@
 2. Determine turn order
 3. Player 1 chooses deck
 4. Player 1 draws three cards from their deck and combines the values. (Note: Test closed and open play)
-5. Player 1 decides whether to fortify. This means they roll two six-sided dice and add the result to their score. Doing so costs 30-45% of the initial bet value (find a balance, maybe link it to nr of faces (4:30%, 6:40%, 8:45%)). This money will go straight to the opponent instead of being added to the possible winnings.
+5. Player 1 decides whether to Fortify. Fortify: roll two six-sided dice and add the result to their score. Doing so costs 30-45% of the initial bet value (find a balance, maybe link it to nr of faces (4:30%, 6:40%, 8:45%)). This money will go straight to the opponent instead of being added to the possible winnings.
 6. Player 2 takes their turn. Draw 3 cards, decide to roll 2d6 or not.
 7. Results are compared.
 8. Money is exchanged.
