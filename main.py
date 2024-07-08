@@ -1,9 +1,50 @@
 import random
 import os
+from enum import Enum
+
+class textDecorations:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
+TABLE_STANDS = 17
 
 def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    _ = os.system('cls' if os.name == 'nt' else 'clear')
 
+# TODO: Player class 
+# TODO: Player class has state (money, bet, hand, score)
+# TODO: Player class has methods (hit, stand, double, split)
+# TODO: Player class has properties (is_busted, is_blackjack)
+# TODO: Player can bet
+# TODO: Player can split
+# TODO: Dealer class (inherits from Player class)
+# TODO: Deck class (manages deck of cards)
+# TODO: Game class (manages game state, players, deck, etc.
+# TODO: Pretty print cards
+# TODO: Add more players
+# TODO: Add variant rules (dealer checks for blackjack on 10 or A face up card (reveal if true), dealer hits on soft 17, dealer receives one card at start, etc.)
+
+class turnStates(Enum):
+    BETTING = 0
+    DEALING = 1
+    PLAYING = 2
+    DEALER = 3
+    END = 4
+
+class WinStates(Enum):
+    BLACKJACK = 1
+    WIN = 2
+    LOSE = 3
+    PUSH = 4
+    BUST = 5
 
 class Card:
     def __init__(self, suit, rank, value):
@@ -29,13 +70,16 @@ def blackjack_game(deck):
 
     clear()
 
-    # Phase 1: Deal 2 cards to player and dealer
+    # Phase 1: Deal 2 cards to everyone (players first, dealer last)
+
+    # card1 = deck[0]
+    # card2 = deck[1]
+    # player_hand.append(card1, card2)
+    # deck.remove(card)
+
     while len(player_hand) < 2:
         # deal random card to player
-        player_card = random.choice(deck)
-        player_hand.append(player_card)
-        deck.remove(player_card)
-        
+        player_card = deal_card(deck, player_hand)
         player_score += player_card.value
 
         # Check for double Ace
@@ -44,66 +88,192 @@ def blackjack_game(deck):
                 player_hand[0].value = "1"
                 player_score -= 10
         
-        # Print player hand
-        print("Player Hand: ")
-        print_hand(player_hand, False)
-        print("Player Score: ", player_score)
-
-        input()
+    # Print player hand
+    # print("Player Hand: ")
+    # print_hand(player_hand, False)
+    # print("Player Score: ", player_score)
 
     while len(dealer_hand) < 2:
         # deal random card to dealer
-        dealer_card = random.choice(deck)
-        dealer_hand.append(dealer_card)
-        deck.remove(dealer_card)
+        dealer_card = deal_card(deck, dealer_hand)
 
         # update dealer's score
         dealer_score += dealer_card.value
 
-        # Print dealer hand
-        if(len(dealer_hand) == 1):
-            print("Dealer Hand: ")
-            print_hand(dealer_hand, False)
-            print("Dealer Score: ", dealer_score)
-        else:
-            print("Dealer Hand: ")
-            print_hand(dealer_hand, True)
-            print("Dealer Score: ", dealer_score - dealer_hand[1].value)
+    # Print dealer hand
+    # if(len(dealer_hand) == 1):
+    #     print("Dealer Hand: ")
+    #     print_hand(dealer_hand, False)
+    #     print("Dealer Score: ", dealer_score)
+    # else:
+    #     print("Dealer Hand: ")
+    #     print_hand(dealer_hand)
+    #     print("Dealer Score: ", dealer_score - dealer_hand[1].value)
 
-        # Check for double Ace
-        if(len(dealer_hand) == 2):
-            if dealer_hand[0].value == "11" and dealer_hand[1].value == "A":
-                dealer_hand[1].value = "1"
-                dealer_score -= 10
+    # Check for double Ace
+    if(len(dealer_hand) == 2):
+        if dealer_hand[0].value == "11" and dealer_hand[1].value == "A":
+            dealer_hand[1].value = "1"
+            dealer_score -= 10
 
-        input()
+    # print_hands(player_hand, dealer_hand, dealer_hidden=True)
+    # input("Press Enter to continue.")
+    player_turn(player_hand, dealer_hand)
 
-    # Check for Blackjack
-    if(player_score == 21):
-        print("PLAYER HAS BLACKJACK!")
-        print("PLAYER WINS!")
-        quit()
-
-    clear()
-
-    # print player's and dealer's hand
-    print_hands(player_hand, dealer_hand, player_score, dealer_score)
+    # round_end(player_hand, dealer_hand, dealer_hidden=True)
+    
+# Phase 1: TODO: Place bets
 
 # Phase 2: Player's Turn
     # managing player's turn
+    # while player_score < 21:
+    #     choice = input(f"Do you want to {textDecorations.UNDERLINE}H{textDecorations.END}it or {textDecorations.UNDERLINE}S{textDecorations.END}tand? ").upper()
+    #     # sanity check for player's choice
+    #     if len(choice) != 1 or choice != "H" and choice != "S":
+    #         clear()
+    #         print_hands(player_hand, dealer_hand)
+    #         print(f"Invalid choice. Do you want to {textDecorations.UNDERLINE}Hit{textDecorations.END} or {textDecorations.UNDERLINE}Stand{textDecorations.END}? ")
+            
+    #     clear()
+    #     # if player chooses to hit
+    #     if choice == "H":
+    #         print("Player decides to hit.")
+    #         # deal random card to player
+    #         player_card = deal_card(deck, player_hand)
+
+    #         # update player's score
+    #         player_score += player_card.value
+
+    #         # update player's score if player has Ace
+    #         c = 0
+    #         while player_score > 21 and c < len(player_hand):
+    #             if player_hand[c].value == 11:
+    #                 player_hand[c].value = 1
+    #                 player_score -= 10
+    #             c += 1
+
+    #         # print player's and dealer's hand
+    #         print_hands(player_hand, dealer_hand)
+            
+    #     # if player chooses to stand
+    #     elif choice == "S":
+    #         print("Player decides to stand.")
+    #         break
+    
+    # player_turn(player_hand, dealer_hand)
+
+    # print player's and dealer's hand
+    # round_end(player_hand, dealer_hand, dealer_hidden=True)
+    
+# Phase 3: Dealer's Turn
+    # managing dealer's turn
+    # dealer's score is less than 17
+    dealer_turn(player_hand, dealer_hand)
+    round_end(player_hand, dealer_hand, dealer_hidden=True)
+
+##########################################################################################################
+#                                            HELPER FUNCTIONS                                            #
+##########################################################################################################
+
+def calc_score(hand):
+    score = 0
+    for card in hand:
+        score += card.value
+    return score
+
+def deal_card(deck, hand):
+    card = random.choice(deck)
+    hand.append(card)
+    deck.remove(card)
+    return card
+
+def win_state(player_hand, dealer_hand):
+    player_score = calc_score(player_hand)
+    dealer_score = calc_score(dealer_hand)
+    # Checks for player with two cards
+    if len(player_hand) == 2:
+        # PUSH (when player and dealer have the same score)
+        if player_score == 21 and dealer_score == 21 and len(dealer_hand) >= 2:
+            return WinStates.PUSH
+        # WIN (when player has blackjack, but dealer does not)
+        elif player_score == 21 and dealer_score != 21 and len(dealer_hand) >= 2:
+            return WinStates.BLACKJACK
+        # LOSE (when dealer has blackjack, but player does not)
+        elif player_score < 21 and dealer_score == 21 and len(dealer_hand) == 2:
+            return WinStates.LOSE
+        # WIN (when player has higher score than dealer or dealer has busted)
+        elif (player_score > dealer_score and dealer_score > 17) or dealer_score > 21:
+            return WinStates.WIN
+        # Neither player nor dealer has blackjack
+        else:
+            return None
+    # Checks for player with more than two cards (blackjack is not possible with more than two cards)
+    # LOSE (when player has busted)
+    if player_score > 21:
+        return WinStates.BUST
+    else:
+        # PUSH (when player and dealer have the same score)
+        if player_score == dealer_score:
+            return WinStates.PUSH
+        # WIN (when the player has better score than dealer or dealer has busted)
+        elif player_score > dealer_score or dealer_score > 21:
+            return WinStates.WIN
+        # LOSE (when dealer has better score than player and dealer has not busted)
+        elif player_score < dealer_score and dealer_score <= 21:
+            return WinStates.LOSE
+    # None of the above conditions are met
+    return None
+
+def win_message(turn_state):
+    match turn_state:
+        case WinStates.BLACKJACK:
+            print("Player has Blackjack!")
+        case WinStates.WIN:
+            print("Player wins!")
+        case WinStates.BUST:
+            print("Player busts!")
+        case WinStates.LOSE:
+            print("Dealer wins!")
+        case WinStates.PUSH:
+            print("Push!")
+        case _:
+            print("Error: Invalid win state.")
+            input("Press Enter to quit.")
+            quit()
+
+# TODO: reveal dealer's hand when ... 
+def round_end(player_hand, dealer_hand, dealer_hidden):
+    # print player's and dealer's hand
+    clear()
+    turn_state = win_state(player_hand, dealer_hand)
+    print("Round ends. Cards left: %s of %s\n" %(len(deck), max_deck))
+    if turn_state != None:
+        print_hands(player_hand, dealer_hand, dealer_hidden = False)
+        win_message(turn_state)
+        input("Press Enter to quit.")
+        quit()
+    else:
+        print_hands(player_hand, dealer_hand, dealer_hidden = True)
+        input("Press Enter to continue.")
+
+def player_turn(player_hand, dealer_hand):
+    player_score = calc_score(player_hand)
+    print_hands(player_hand, dealer_hand, dealer_hidden=True)
+
+    question = f"Do you want to {textDecorations.UNDERLINE}H{textDecorations.END}it or {textDecorations.UNDERLINE}S{textDecorations.END}tand? "
     while player_score < 21:
-        choice = input("Do you want to (H)it or (S)tand? ").upper()
+        choice = input(question).upper()
         # sanity check for player's choice
-        if len(choice) != 1 or choice != "H" and choice != "S":
-            clear()
-            print("Invalid choice. Do you want to (H)it or (S)tand? ")
+        allowed_choices = ["H", "S"]
+        if choice not in allowed_choices:
+            print_hands(player_hand, dealer_hand)
+            print(f"Input '{choice}' is invalid.")
             
         # if player chooses to hit
         if choice == "H":
+            print("Player decided to hit.")
             # deal random card to player
-            player_card = random.choice(deck)
-            player_hand.append(player_card)
-            deck.remove(player_card)
+            player_card = deal_card(deck, player_hand)
 
             # update player's score
             player_score += player_card.value
@@ -115,48 +285,25 @@ def blackjack_game(deck):
                     player_hand[c].value = 1
                     player_score -= 10
                 c += 1
-            
-            clear()
-            
+
             # print player's and dealer's hand
-            print_hands(player_hand, dealer_hand, player_score, dealer_score)
+            print_hands(player_hand, dealer_hand)
             
         # if player chooses to stand
         elif choice == "S":
+            print("Player decided to stand.")
             break
 
-    clear()
-    
-    # print player's and dealer's hand
-    print_hands(player_hand, dealer_hand, player_score, dealer_score, False)
+    input("Press Enter to continue.")
 
-    # check if player's has blackjack
-    if player_score == 21:
-        print("PLAYER HAS BLACKJACK!")
-        print("PLAYER WINS!")
-        quit()
-
-    # check if player's score is greater than 21
-    if player_score > 21:
-        print("PLAYER BUSTS!")
-        print("DEALER WINS!")
-        quit()
-
-    input()
-    
-# Phase 3: Dealer's Turn
-    # managing dealer's turn
-    # dealer's score is less than 17
-    while dealer_score < 17:
-        clear()
-
-        print("Dealer decides to hit.")
+def dealer_turn(player_hand, dealer_hand):
+    dealer_score = calc_score(dealer_hand)
+    while dealer_score < TABLE_STANDS:
+        print("Dealer decided to hit.")
 
         # deal random card to dealer
-        dealer_card = random.choice(deck)
-        dealer_hand.append(dealer_card)
-        deck.remove(dealer_card)
-
+        dealer_card = deal_card(deck, dealer_hand)
+        
         # update dealer's score
         dealer_score += dealer_card.value
 
@@ -167,41 +314,18 @@ def blackjack_game(deck):
                 dealer_hand[c].value = 1
                 dealer_score -= 10
             c += 1
-        
-        # print player's and dealer's hand
-        print_hands(player_hand, dealer_hand, player_score, dealer_score, False)
-    
-# Phase 4: Compare player's and dealer's score
-    # if dealer has blackjack
-    if dealer_score == 21:
-        print("DEALER HAS BLACKJACK!")
-        print("DEALER WINS!")
-        quit()
-    
-    # if dealer's score is greater than 21
-    elif dealer_score > 21:    
-        print("DEALER BUSTS!")
-        print("PLAYER WINS!")
-        quit()
-    
-    # if player's score is equal to dealer's score
-    elif dealer_score == player_score:
-        print("IT'S A TIE!")
-    
-    # if player's score is greater than 21
-    if player_score > dealer_score:
-        print("PLAYER HAS HIGHER SCORE!")
-        print("PLAYER WINS!")
-    
-    # Dealer wins
-    else:
-        print("DEALER HAS HIGHER SCORE!")
-        print("DEALER WINS!")
 
-def print_hand(hand, hidden=True):    
+        print_hands(player_hand, dealer_hand)
+
+    
+    # dealer's score is greater than or equal to 17
+    print("Dealer stands.")
+    input("Press Enter to continue.")
+
+def print_hand(hand, dealer_hidden=True):
     # print cards in hand
     for card in hand:
-        if hidden and card == hand[1]:
+        if dealer_hidden and card == hand[1]:
             print("Hidden")
         else:
             print_card(card)
@@ -209,17 +333,22 @@ def print_hand(hand, hidden=True):
 def print_card(card):
     print(f"{card.rank}{card.suit}")
 
-def print_hands(player_hand, dealer_hand, player_score, dealer_score, hidden=True, dealer_turn=False):
-    # print dealer's hand and score
-    print("Dealer Hand: ")
-    print_hand(dealer_hand, hidden)
-    print("Dealer Score: ", dealer_score - dealer_hand[1].value if hidden else dealer_score)
-    print()
+def print_hands(player_hand, dealer_hand, dealer_hidden=True):
+    player_score = calc_score(player_hand)
+    dealer_score = calc_score(dealer_hand)
+    clear()
     # print player's hand and score
-    print("Player Hand: ")
-    print_hand(player_hand)
+    print(f"{textDecorations.GREEN}Player Hand:{textDecorations.END} ")
+    print_hand(player_hand, False)
     print("Player Score: ", player_score)
-
+    # print player status (blackjack, bust, stand)
+    print()
+    # print dealer's hand and score
+    print(f"{textDecorations.RED}Dealer Hand:{textDecorations.END}")
+    print_hand(dealer_hand, dealer_hidden)
+    print("Dealer Score: ", dealer_score - dealer_hand[1].value if dealer_hidden else dealer_score)
+    # print dealer status (blackjack, bust, stand)
+    print()
 
 
 if __name__ == "__main__":
@@ -237,7 +366,6 @@ if __name__ == "__main__":
 
     # The deck of cards
     deck = []
-
     # Loop for every type of suit
     for suit in suits:
  
@@ -247,4 +375,5 @@ if __name__ == "__main__":
             # Adding card to the deck
             deck.append(Card(suit_icons[suit], card, rank_values[card]))
      
+    max_deck = len(deck)
     blackjack_game(deck)
