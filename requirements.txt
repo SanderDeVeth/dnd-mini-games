@@ -1,0 +1,4 @@
+pipdeptree==2.23.0
+pytest-mock==3.14.0
+setuptools==69.5.1
+wheel==0.43.0

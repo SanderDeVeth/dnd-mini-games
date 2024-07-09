@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "tdd_blackjack"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
