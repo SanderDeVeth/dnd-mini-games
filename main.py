@@ -14,7 +14,9 @@ class textDecorations:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-TABLE_STANDS = 17
+DEALER_STANDS = 17
+TARGET_SCORE = 21
+STARTING_HAND_LENGTH = 2
 
 def clear():
     _ = os.system('cls' if os.name == 'nt' else 'clear')
@@ -39,6 +41,11 @@ class turnStates(Enum):
     DEALER = 3
     END = 4
 
+# BLACKJACK is max score of 21 with two cards
+# WIN is when player has higher score than dealer
+# LOSE is when player has less score than dealer
+# PUSH is when player and dealer have the same score
+# BUST is when player has more than the max score of 21
 class WinStates(Enum):
     BLACKJACK = 1
     WIN = 2
@@ -70,100 +77,35 @@ def blackjack_game(deck):
 
     clear()
 
-    # Phase 1: Deal 2 cards to everyone (players first, dealer last)
-
-    # card1 = deck[0]
-    # card2 = deck[1]
-    # player_hand.append(card1, card2)
-    # deck.remove(card)
-
-    while len(player_hand) < 2:
+# Phase 0: Deal 2 cards to everyone (players first, dealer last)
+    while len(player_hand) < STARTING_HAND_LENGTH:
         # deal random card to player
         player_card = deal_card(deck, player_hand)
         player_score += player_card.value
 
         # Check for double Ace
-        if(len(player_hand) == 2):
+        if(len(player_hand) == STARTING_HAND_LENGTH):
             if player_hand[0].value == "11" and player_hand[1].value == "A":
                 player_hand[0].value = "1"
                 player_score -= 10
-        
-    # Print player hand
-    # print("Player Hand: ")
-    # print_hand(player_hand, False)
-    # print("Player Score: ", player_score)
 
-    while len(dealer_hand) < 2:
+    while len(dealer_hand) < STARTING_HAND_LENGTH:
         # deal random card to dealer
         dealer_card = deal_card(deck, dealer_hand)
 
         # update dealer's score
         dealer_score += dealer_card.value
 
-    # Print dealer hand
-    # if(len(dealer_hand) == 1):
-    #     print("Dealer Hand: ")
-    #     print_hand(dealer_hand, False)
-    #     print("Dealer Score: ", dealer_score)
-    # else:
-    #     print("Dealer Hand: ")
-    #     print_hand(dealer_hand)
-    #     print("Dealer Score: ", dealer_score - dealer_hand[1].value)
-
     # Check for double Ace
-    if(len(dealer_hand) == 2):
+    if(len(dealer_hand) == STARTING_HAND_LENGTH):
         if dealer_hand[0].value == "11" and dealer_hand[1].value == "A":
             dealer_hand[1].value = "1"
             dealer_score -= 10
 
-    # print_hands(player_hand, dealer_hand, dealer_hidden=True)
-    # input("Press Enter to continue.")
+# Phase 1: Player's Turn
     player_turn(player_hand, dealer_hand)
-
-    # round_end(player_hand, dealer_hand, dealer_hidden=True)
     
-# Phase 1: TODO: Place bets
-
-# Phase 2: Player's Turn
-    # managing player's turn
-    # while player_score < 21:
-    #     choice = input(f"Do you want to {textDecorations.UNDERLINE}H{textDecorations.END}it or {textDecorations.UNDERLINE}S{textDecorations.END}tand? ").upper()
-    #     # sanity check for player's choice
-    #     if len(choice) != 1 or choice != "H" and choice != "S":
-    #         clear()
-    #         print_hands(player_hand, dealer_hand)
-    #         print(f"Invalid choice. Do you want to {textDecorations.UNDERLINE}Hit{textDecorations.END} or {textDecorations.UNDERLINE}Stand{textDecorations.END}? ")
-            
-    #     clear()
-    #     # if player chooses to hit
-    #     if choice == "H":
-    #         print("Player decides to hit.")
-    #         # deal random card to player
-    #         player_card = deal_card(deck, player_hand)
-
-    #         # update player's score
-    #         player_score += player_card.value
-
-    #         # update player's score if player has Ace
-    #         c = 0
-    #         while player_score > 21 and c < len(player_hand):
-    #             if player_hand[c].value == 11:
-    #                 player_hand[c].value = 1
-    #                 player_score -= 10
-    #             c += 1
-
-    #         # print player's and dealer's hand
-    #         print_hands(player_hand, dealer_hand)
-            
-    #     # if player chooses to stand
-    #     elif choice == "S":
-    #         print("Player decides to stand.")
-    #         break
-    
-    # player_turn(player_hand, dealer_hand)
-
-    # print player's and dealer's hand
-    # round_end(player_hand, dealer_hand, dealer_hidden=True)
+# Phase 2: TODO: Place bets
     
 # Phase 3: Dealer's Turn
     # managing dealer's turn
@@ -190,39 +132,17 @@ def deal_card(deck, hand):
 def win_state(player_hand, dealer_hand):
     player_score = calc_score(player_hand)
     dealer_score = calc_score(dealer_hand)
-    # Checks for player with two cards
-    if len(player_hand) == 2:
-        # PUSH (when player and dealer have the same score)
-        if player_score == 21 and dealer_score == 21 and len(dealer_hand) >= 2:
-            return WinStates.PUSH
-        # WIN (when player has blackjack, but dealer does not)
-        elif player_score == 21 and dealer_score != 21 and len(dealer_hand) >= 2:
-            return WinStates.BLACKJACK
-        # LOSE (when dealer has blackjack, but player does not)
-        elif player_score < 21 and dealer_score == 21 and len(dealer_hand) == 2:
-            return WinStates.LOSE
-        # WIN (when player has higher score than dealer or dealer has busted)
-        elif (player_score > dealer_score and dealer_score > 17) or dealer_score > 21:
-            return WinStates.WIN
-        # Neither player nor dealer has blackjack
-        else:
-            return None
-    # Checks for player with more than two cards (blackjack is not possible with more than two cards)
-    # LOSE (when player has busted)
-    if player_score > 21:
+    
+    if player_score > TARGET_SCORE:
         return WinStates.BUST
-    else:
-        # PUSH (when player and dealer have the same score)
-        if player_score == dealer_score:
-            return WinStates.PUSH
-        # WIN (when the player has better score than dealer or dealer has busted)
-        elif player_score > dealer_score or dealer_score > 21:
-            return WinStates.WIN
-        # LOSE (when dealer has better score than player and dealer has not busted)
-        elif player_score < dealer_score and dealer_score <= 21:
-            return WinStates.LOSE
-    # None of the above conditions are met
-    return None
+    if player_score == dealer_score:
+        return WinStates.PUSH
+    if player_score < dealer_score and dealer_score <= TARGET_SCORE:
+        return WinStates.LOSE
+    if player_score == TARGET_SCORE and len(player_hand) == 2 and dealer_score != TARGET_SCORE:
+        return WinStates.BLACKJACK
+    if player_score > dealer_score or dealer_score > TARGET_SCORE:
+        return WinStates.WIN
 
 def win_message(turn_state):
     match turn_state:
@@ -298,7 +218,7 @@ def player_turn(player_hand, dealer_hand):
 
 def dealer_turn(player_hand, dealer_hand):
     dealer_score = calc_score(dealer_hand)
-    while dealer_score < TABLE_STANDS:
+    while dealer_score < DEALER_STANDS:
         print("Dealer decided to hit.")
 
         # deal random card to dealer
@@ -352,28 +272,22 @@ def print_hands(player_hand, dealer_hand, dealer_hidden=True):
 
 
 if __name__ == "__main__":
-    # suits
+    # suits and icons
     suits = ["Spades", "Hearts", "Clubs", "Diamonds"]
-    
-    # suits values
     suit_icons = {"Spades":"\u2664", "Hearts":"\u2661", "Clubs": "\u2667", "Diamonds": "\u2662"}
 
-    # ranks
+    # ranks and values
     ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-    
-    # values
     rank_values = {"A": 11, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 10, "Q": 10, "K": 10}
 
-    # The deck of cards
+    DECKS_USED = 6
     deck = []
-    # Loop for every type of suit
-    for suit in suits:
- 
-        # Loop for every type of card in a suit
-        for card in ranks:
- 
-            # Adding card to the deck
-            deck.append(Card(suit_icons[suit], card, rank_values[card]))
-     
+    
+    # Creating the deck of cards
+    for i in range(DECKS_USED):
+        for suit in suits:
+            for card in ranks:
+                deck.append(Card(suit_icons[suit], card, rank_values[card]))
+    
     max_deck = len(deck)
     blackjack_game(deck)
